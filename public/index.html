@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      src="https://kit.fontawesome.com/64d58efce2.js"
+      crossorigin="anonymous"
+    ></script>
+    <link rel="stylesheet" href="./admin/css/style.css" />
+    <title>Sign in & Sign up Form</title>
+    <link
+      rel="shortcut icon"
+      href="./admin/images/OILPALMNEWS LOGO.png"
+      type="image/png"
+    />
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="forms-container">
+        <div class="signin-signup">
+          <form action="#" class="sign-in-form">
+            <h2 class="title">Sign in</h2>
+            <div class="input-field">
+              <i class="fas fa-user"></i>
+              <input type="email" placeholder="Email" id="email_signin" />
+            </div>
+            <div class="input-field">
+              <i class="fas fa-lock"></i>
+              <input
+                type="password"
+                placeholder="Password"
+                id="psw_signin"
+                autocomplete="new-password"
+              />
+            </div>
+            <select class="input-field" id="user_type">
+              <option value="admin">Admin</option>
+              <option value="counselor">Counselor</option>
+            </select>
+            <input
+              type="button"
+              value="Login"
+              id="signin-button"
+              class="btn solid"
+            />
+          </form>
+          <!-- <form action="#" class="sign-up-form">
+            <h2 class="title">Sign up</h2>
+            <div class="input-field">
+              <i class="fas fa-user"></i>
+              <input type="text" placeholder="Name" id="name" />
+            </div>
+            <div class="input-field">
+              <i class="fas fa-phone"></i>
+              <input type="text" placeholder="No HP" id="nohp" />
+            </div>
+            <div class="input-field">
+              <i class="fas fa-envelope"></i>
+              <input type="email" placeholder="Email" id="email_signup" />
+            </div>
+            <div class="input-field">
+              <i class="fas fa-lock"></i>
+              <input
+                type="password"
+                placeholder="Password"
+                id="psw_signup"
+                autocomplete="new-password"
+              />
+            </div>
+            <input
+              class="btn"
+              id="signup-button"
+              value="                Sign up"
+            />
+          </form> -->
+        </div>
+      </div>
+
+      <div class="panels-container">
+        <div class="panel left-panel">
+          <div class="content">
+            <h3>Hallo Admin!</h3>
+            <p>
+              Kamu baru disini? Yuk buat akun untuk bergabung sebagai admin,
+              dengan cara hubungi admin yang sudah terdaftar
+            </p>
+            <!-- <button class="btn transparent" id="sign-up-btn">Sign up</button> -->
+          </div>
+          <br />
+          <img src="./admin/images/OILPALMNEWS LOGO.png" class="image" alt="" />
+        </div>
+        <div class="panel right-panel">
+          <div class="content">
+            <h3>Kamu sudah punya akun ?</h3>
+            <p>
+              Yuk sign in dengan memasukan email dan password yang terdaftar!
+            </p>
+            <button class="btn transparent" id="sign-in-btn">Sign in</button>
+          </div>
+          <img src="./images/register.svg" class="image" alt="" />
+        </div>
+      </div>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
+    <script type="module" src="./myscript.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

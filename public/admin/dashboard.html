@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SAWIT</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: var(--body-bg);
+        margin: 0;
+        padding: 0;
+      }
+      #coordinateForm {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 25px;
+        margin-bottom: 30px;
+        text-align: center;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        background-color: #fff;
+        max-width: 400px;
+        width: 100%;
+      }
+
+      .slider-container {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .slider {
+        display: flex;
+        transition: transform 0.3s ease-in-out;
+      }
+
+      .slide {
+        width: 100%;
+        height: auto;
+        max-width: 100%;
+        object-fit: cover;
+        margin-bottom: 3%;
+      }
+
+      .buttonnext {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        padding: 10px 15px;
+      }
+
+      #prevBtn {
+        left: 10px;
+      }
+
+      #nextBtn {
+        right: 10px;
+      }
+      /* Aturan CSS untuk tampilan seluler (dibawah 768px) */
+      @media (max-width: 768px) {
+        .slide {
+          max-height: 300px; /* Sesuaikan dengan tinggi gambar yang Anda inginkan pada perangkat seluler */
+        }
+
+        .buttonnext {
+          font-size: 10px;
+          padding: 8px 12px;
+        }
+
+        #prevBtn {
+          left: 2px;
+        }
+
+        #nextBtn {
+          right: 2px;
+        }
+      }
+      input[type="text"],
+      input[type="email"],
+      input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        outline: none;
+      }
+    </style>
+    <link
+      rel="shortcut icon"
+      href="./images/OILPALMNEWS LOGO.png"
+      type="image/png"
+    />
+    <!-- GOOGLE FONT -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+      rel="stylesheet"
+    />
+    <!-- BOXICONS -->
+    <link
+      href="https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+    <!-- Firebase Authentication -->
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
+    <!-- Firestore -->
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-storage.js"></script>
+    <!-- APP CSS -->
+    <link rel="stylesheet" href="./css/bootstrap.min.css" />
+    <link rel="stylesheet" href="./css/grid.css" />
+    <link rel="stylesheet" href="./css/styles.css" />
+    <link rel="stylesheet" href="./css/responsive.css" />
+    <link rel="stylesheet" href="./css/popup.css" />
+
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBXx4LpgL2H7akLfLO2BDNQqJH0wCCTHxI&callback=initMap"
+      async
+      defer
+    ></script>
+    <script>
+      
+
+      var map;
+      var markers = [];
+
+      // Fungsi untuk mengambil data koordinat dari Firestore dan menambahkannya ke peta
+      function initMap() {
+        var mapOptions = {
+          center: { lat: 0.7893, lng: 113.9213 }, // Koordinat pusat peta
+          zoom: 5, // Level zoom
+        };
+        map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+        // Mengambil data koordinat dari Firestore dan menambahkannya sebagai marker ke peta
+        db.collection("coordinates")
+          .get()
+          .then(function (querySnapshot) {
+            querySnapshot.forEach(function (doc) {
+              var data = doc.data();
+              var latitude = data.latitude;
+              var longitude = data.longitude;
+
+              // Menambahkan marker ke peta untuk setiap koordinat
+              var marker = new google.maps.Marker({
+                position: { lat: latitude, lng: longitude },
+                map: map,
+                title: "Koordinat",
+              });
+
+              markers.push(marker);
+            });
+          });
+      }
+
+      // Fungsi untuk menambahkan data koordinat ke Firestore
+      function addCoordinate() {
+        var latitude = parseFloat(document.getElementById("latitude").value);
+        var longitude = parseFloat(document.getElementById("longitude").value);
+
+        // Memastikan bahwa nilai yang dimasukkan adalah angka valid
+        if (!isNaN(latitude) && !isNaN(longitude)) {
+          // Menambahkan data koordinat ke Firestore
+          db.collection("coordinates")
+            .add({
+              latitude: latitude,
+              longitude: longitude,
+            })
+            .then(function (docRef) {
+              console.log("Document written with ID: ", docRef.id);
+              // Setelah data ditambahkan, perbarui peta dengan menambahkan marker baru
+              var marker = new google.maps.Marker({
+                position: { lat: latitude, lng: longitude },
+                map: map,
+                title: "Koordinat",
+              });
+              markers.push(marker);
+            })
+            .catch(function (error) {
+              console.error("Error adding document: ", error);
+            });
+        } else {
+          alert("Latitude dan Longitude harus berupa angka.");
+        }
+      }
+    </script>
+  </head>
+
+  <body class="sidebar-expand">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-logo">
+        <a href="dashboard.html">
+          <img src="./images/OILPALMNEWS LOGO.png" alt="KDRT" />
+        </a>
+        <div class="sidebar-close" id="sidebar-close">
+          <i class="bx bx-left-arrow-alt"></i>
+        </div>
+      </div>
+      <!-- SIDEBAR MENU -->
+      <div class="simlebar-sc" data-simplebar>
+        <ul class="sidebar-menu tf">
+          <li
+            href="dashboard.html"
+            class="sidebar-menu-dropdown"
+            class="sidebar-submenu"
+          ></li>
+          <li>
+            <a href="dashboard.html">
+              <i class="bx bxs-home"></i>
+              <span>Dasboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="threads.html">
+              <i class="bx bxs-bell"></i>
+              <span>Threads</span>
+            </a>
+          </li>
+          <li>
+            <a href="laporan.html">
+              <i class="bx bxs-dashboard"></i>
+              <span>Laporan</span>
+            </a>
+          </li>
+          <li>
+            <a href="artikel.html">
+              <i class="bx bxs-book"></i>
+              <span>Artikel</span>
+            </a>
+          </li>
+          <li>
+            <a href="addAcount.html">
+              <i class="bx bxs-message-rounded-detail"></i>
+              <span>Tambah Akun</span>
+            </a>
+          </li>
+          
+        </ul>
+      </div>
+    </div>
+    <!-- END SIDEBAR -->
+    <!-- Main Header -->
+
+    <div class="main-header">
+      <div class="d-flex">
+        <div class="mobile-toggle" id="mobile-toggle">
+          <i class="bx bx-menu"></i>
+        </div>
+        <div class="main-title">Dashboard</div>
+      </div>
+      <!--Container header-->
+      <div class="d-flex align-items-center" id="imgcontainer">
+        <div class="dropdown d-inline-block mt-12">
+          <button
+            type="button"
+            class="btn header-item waves-effect"
+            id="page-header-user-dropdown"
+            data-bs-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            <img
+              class="profile-picture"
+              src="../konselor/images/profiledefault.png"
+              alt="Header Avatar"
+              id="profile"
+            />
+            <span class="pulse-css"></span>
+            <span class="info d-xl-inline-block color-span">
+              <!--collect nama dan email-->
+              <span id="Adminname" class="d-block fs-20 font-w600"></span>
+              <span id="email" class="d-block mt-7"></span>
+            </span>
+            <i class="bx bx-chevron-down"></i>
+          </button>
+          <div class="dropdown-menu dropdown-menu-end">
+            <!-- item-->
+            <div>
+              <a
+                class="dropdown-item"
+                data-target="#add_project"
+                data-toggle="modal"
+                class="create d-flex"
+                ><i class="bx bx-user font-size-16 align-middle me-1"></i>
+                <button class="buttn">Profile</button></a
+              >
+            </div>
+            <a class="dropdown-item text-danger"
+              ><i
+                class="bx bx-power-off font-size-16 align-middle me-1 text-danger"
+              ></i>
+              <button id="logoutbutton" class="buttn">Logout</button></a
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- End Main Header -->
+    <!-- start edit account-->
+    <div id="add_project" class="modal custom-modal fade" role="dialog">
+      <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Your Account</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <!-- foto disini-->
+          <div class="modal-body">
+            <form id="updateAdminForm">
+              <div class="row">
+                <div class="col-sm-6">
+                  <div class="form-group">
+                    <label>Upload Files</label>
+                    <input id="imgprofile" class="form-control" type="file" />
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-sm-6">
+                  <div class="form-group">
+                    <label>Name</label>
+                    <input
+                      id="AdminnameInput"
+                      class="form-control"
+                      value=""
+                      type="text"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-sm-6">
+                  <div id="gender" class="form-group">
+                    <span>Jenis kelamin</span>
+                    <br />
+                    <br />
+                    <label>
+                      <input type="radio" name="gender" value="male" />
+                      Laki-Laki
+                    </label>
+                    <label>
+                      <input type="radio" name="gender" value="female" />
+                      Perempuan
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <button id="buttonsave" class="btn btn-primary">Save</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- end edit account-->
+    <!-- MAIN CONTENT -->
+
+    <div class="main">
+      <div class="main-content dashboard">
+        <div class="row">
+          <div class="col-12">
+            <div class="slider-container">
+              <div class="slider">
+                <img class="slide" src="./images/4.png" alt="Image 1" />
+                <img class="slide" src="./images/5.png" alt="Image 2" />
+                <img class="slide" src="./images/6.png" alt="Image 3" />
+              </div>
+              <button class="buttonnext" id="prevBtn">&lt;</button>
+              <button class="buttonnext" id="nextBtn">&gt;</button>
+            </div>
+            <div class="box card-box">
+              <div class="icon-box bg-color-1">
+                <div class="icon bg-icon-1">
+                  <i class="bx bxs-bell bx-tada bx-tada"></i>
+                </div>
+                <div class="content">
+                  <a href="threads.html" class="title-box"><h5>Threads</h5></a>
+                  <p class="color-1 mb-0 pt-4">
+                    <span id="jumlahthreads"></span>
+                  </p>
+                  <!--ambil data nama-->
+                </div>
+              </div>
+              <div class="icon-box bg-color-2">
+                <a href="./konsultasi.html">
+                  <div class="icon bg-icon-2">
+                    <i class="bx bxs-message-rounded"></i>
+                  </div>
+                  <div class="content click-c">
+                    <a href="./konsultasi.html"><h5 class="">Konsultasi</h5></a>
+                    <p class="color-2 mb-0 pt-4">
+                      <span id="jumlahkonsultasi"></span>
+                    </p>
+                    <!--ambil data nama-->
+                  </div>
+                </a>
+              </div>
+              <div class="icon-box bg-color-3">
+                <a class="create d-flex" href="laporan.html">
+                  <div class="icon bg-icon-3">
+                    <i class="bx bxs-dashboard"></i>
+                  </div>
+                  <div class="content">
+                    <h5>Laporan</h5>
+                    <p class="color-3 mb-0 pt-4">
+                      <span id="jumlahlaporan"></span>
+                    </p>
+                  </div>
+                </a>
+              </div>
+              <div class="icon-box bg-color-3">
+                <a class="create d-flex" href="./artikel.html">
+                  <div class="icon bg-icon-3">
+                    <i class="bx bxs-book"></i>
+                  </div>
+                  <div class="content">
+                    <h5>Artikel</h5>
+                    <p class="color-3 mb-0 pt-4">
+                      <span id="jumlahartikel"></span>
+                    </p>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="main">
+      <section class="titleabout">
+        <div
+          id="map"
+          style="
+            width: 95%; /* Ubah persentase lebar sesuai kebutuhan Anda */
+            height: 300px; /* Ubah piksel tinggi sesuai kebutuhan Anda */
+            margin-left: 3%; /* Menyisakan 10% ruang kosong di sudut kiri */
+            margin-right: 5%; /* Menyisakan 10% ruang kosong di sudut kanan */
+          "
+        ></div>
+      </section>
+      <form id="coordinateForm">
+        <label for="latitude">Latitude:</label>
+        <input type="text" id="latitude" name="latitude" required /><br />
+        <label for="longitude">Longitude:</label>
+        <input type="text" id="longitude" name="longitude" required /><br />
+        <button type="button" class="btn solid" onclick="addCoordinate()"style="background-color: #d0e77f; margin-top: 10px;">
+          Tambah Koordinat
+        </button>
+      </form>
+      
+    <!-- END MAIN CONTENT -->
+
+    <div class="overlay"></div>
+
+    <script src="./libs/jquery/jquery.min.js"></script>
+    <script src="./libs/moment/min/moment.min.js"></script>
+    <script src="./libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="./libs/peity/jquery.peity.min.js"></script>
+    <script src="./libs/chart.js/Chart.bundle.min.js"></script>
+    <script src="./libs/owl.carousel/owl.carousel.min.js"></script>
+    <script src="./libs/bootstrap/js/bootstrap.min.js"></script>
+    <script src="./libs/apexcharts/apexcharts.js"></script>
+    <script src="./libs/simplebar/simplebar.min.js"></script>
+
+    <!-- APP JS -->
+    <script src="./js/main.js"></script>
+    <script src="./js/shortcode.js"></script>
+    <script src="./js/pages/dashboard.js"></script>
+    <script src="./js/pages/logout.js"></script>
+    <script src="./js/pages/status.js"></script>
+    <script src="./myscript.js"></script>
+  </body>
+</html>
